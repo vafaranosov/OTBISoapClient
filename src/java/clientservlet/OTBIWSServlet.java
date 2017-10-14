@@ -7,6 +7,7 @@ package clientservlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -14,6 +15,8 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import oracle.bi.web.soap.QueryResults;
 import oracle.bi.web.soap.ReportParams;
@@ -24,6 +27,11 @@ import oracle.bi.web.soap.XMLQueryExecutionOptions;
 import oracle.bi.web.soap.XMLQueryOutputFormat;
 import oracle.bi.web.soap.XmlViewService;
 import oracle.bi.web.soap.XmlViewServiceSoap;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -78,7 +86,6 @@ public class OTBIWSServlet extends HttpServlet {
                     reportParams,
                     sessionId);
 
-           
             port.logoff(sessionId);
 
             out.println("<html>");
@@ -92,18 +99,32 @@ public class OTBIWSServlet extends HttpServlet {
             //Display the report's name as a header within the body of the report:
             out.println("<h2><font color='red'>OTBI Report</font></h2>");
 
-            
             out.println("<hr><b>Your report:</b> \"" + reportName + "\"" + "<p>");
 
-            
             out.println("<hr>");
 
-           
             String rowset = results.getRowset();
-            
-            out.println("<pre lang = \"xml\">");
-            out.println(rowset);
-            out.println("</pre>");
+            // System.out.println(rowset);
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(results.getRowset())));
+            doc.getDocumentElement().normalize();
+            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+            System.out.println("Root element :" + doc.getDocumentElement().getNodeName());
+            NodeList nList = doc.getElementsByTagName("Row");
+            for (int temp = 0; temp < nList.getLength(); temp++) {
+                Node node = nList.item(temp);
+                
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    //Print each employee's detail
+                    Element eElement = (Element) node;
+                  //  System.out.println("Employee id : " + eElement.getAttribute("id"));
+                    out.println("Employee : " + eElement.getElementsByTagName("Column0").item(0).getTextContent() + "  ");
+                    out.println("Goal : " + eElement.getElementsByTagName("Column1").item(0).getTextContent() + "  ");
+                    out.println("Status : " + eElement.getElementsByTagName("Column2").item(0).getTextContent()+ "<br>");
+                }
+            }
+
             out.println("</font>");
             out.println("</body>");
             out.println("</html>");
