@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="https://eewb-test.bi.us6.oraclecloud.com/analytics-ws/saw.dll/wsdl/v7" uri="src/conf/xml-resources/web-service-references/v7/wsdl/eewb-test.bi.us6.oraclecloud.com/analytics-ws/saw.dll/wsdl/v7.wsdl"/>
+</catalog>
